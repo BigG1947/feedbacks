@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func initRouter() *mux.Router {
@@ -16,9 +17,9 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/blockchain/checkActivity", checkActivity)
 	// CRUD routes
 	router.HandleFunc("/blockchain/sumBlock", sumBlock).Methods("POST")
-	//router.HandleFunc("/blockchain/addBlock", addExecBlock).Methods("POST")
 	router.HandleFunc("/blockchain/getValidBlockChain", getValidBlockChain)
 	router.HandleFunc("/blockchain/addBlockWithoutSum", addBlockWithoutSum).Methods("POST")
+	router.HandleFunc("/blockchain/addBlock", addFeedback).Methods("POST")
 
 	// For test routes
 	router.HandleFunc("/blockchain/printBlockChain", printBlockchain)
@@ -104,13 +105,13 @@ func sumBlock(w http.ResponseWriter, r *http.Request) {
 }
 
 func printBlockchain(w http.ResponseWriter, _ *http.Request) {
-	bc.PrintBlockChain(bc.Iterator(), &w)
+	bc.Print(bc.Iterator(), &w)
 }
 
 func checkActivity(w http.ResponseWriter, r *http.Request) {
 	responseStruct := struct {
-		Length int    `json:"length"`
-		Hash   []byte `json:"hash"`
+		Length int      `json:"length"`
+		Hash   [32]byte `json:"hash"`
 	}{
 		bc.GetLength(),
 		bc.GetHash(),
@@ -132,4 +133,25 @@ func checkActivity(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Node %s came here!\n", body)
 	return
+}
+
+func addFeedback(w http.ResponseWriter, r *http.Request) {
+	idEmployee, err := strconv.Atoi(r.FormValue("id_employee"))
+	if err != nil {
+		fmt.Fprintf(w, "Ошибка в указании пользователя")
+		return
+	}
+	mark, err := strconv.Atoi(r.FormValue("mark"))
+	if err != nil {
+		fmt.Fprintf(w, "Ошибка в указании оценки")
+		return
+	}
+	feedback := r.FormValue("text")
+	err = bc.AddBlock(feedback, idEmployee, mark, 0)
+	if err != nil {
+		log.Printf("Error in add block to BlockChain: %s\n", err)
+		fmt.Fprint(w, "Система отзывов временно недоступна, приносим вам свои извинения")
+		return
+	}
+	fmt.Fprintf(w, "Ваш отзыв принят в обработку\n")
 }
