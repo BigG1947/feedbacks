@@ -8,17 +8,17 @@ import (
 )
 
 type Block struct {
-	TimeStamp        int64
-	Data             []byte
-	EmployeeId       int
-	PrevFeedBackHash []byte
-	Hash             []byte
-	Nonce            int
-	Mark             int
+	TimeStamp        int64  `json:"time_stamp"`
+	Data             []byte `json:"data"`
+	EmployeeId       int    `json:"employee_id"`
+	PrevFeedBackHash []byte `json:"prev_feed_back_hash"`
+	Hash             []byte `json:"hash"`
+	Nonce            int    `json:"nonce"`
+	Mark             int    `json:"mark"`
 }
 
 func NewBlock(data string, idEmployee int, mark int, prevFeedBackHash []byte, timestamp int64) *Block {
-	if timestamp == 0{
+	if timestamp == 0 {
 		timestamp = time.Now().Unix()
 	}
 	feedback := &Block{timestamp, []byte(data), idEmployee, prevFeedBackHash, []byte{}, 0, mark}

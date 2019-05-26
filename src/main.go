@@ -23,9 +23,6 @@ func main() {
 		log.Printf("Error in initialization blockchain:\n%s\n", err)
 	}
 
-	go bc.CheckNodesInNetWork()
-
-
 	log.Print("Server is starting...")
 	log.Print(http.ListenAndServe(":8082", initRouter()))
 }
