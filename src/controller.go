@@ -74,7 +74,6 @@ func addBlockWithoutSum(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	log.Printf("Block insert into blockchain!\n")
 	w.WriteHeader(http.StatusOK)
 	return
 }
