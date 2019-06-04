@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -23,7 +24,24 @@ func initRouter() *mux.Router {
 
 	// For test routes
 	router.HandleFunc("/blockchain/printBlockChain", printBlockchain)
+	router.HandleFunc("/blockchain/log", getBlockChainLog)
 	return router
+}
+
+func getBlockChainLog(w http.ResponseWriter, r *http.Request) {
+	file, err := os.OpenFile("blockchain_log.txt", os.O_RDONLY, 0666)
+	if err != nil {
+		fmt.Fprintf(w, "%s\n", err)
+		return
+	}
+	loggs, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Fprintf(w, "%s\n", err)
+		return
+	}
+	w.WriteHeader(200)
+	w.Write(loggs)
+	return
 }
 
 func getValidBlockChain(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +55,6 @@ func getValidBlockChain(w http.ResponseWriter, r *http.Request) {
 		blocks = append(blocks, *fb)
 	}
 	jsonBlockChain, err := json.Marshal(blocks)
-	fmt.Printf("%s", jsonBlockChain)
 	if err != nil {
 		log.Printf("Error in sendValidBlockChain: %s\n", err)
 		w.WriteHeader(500)
@@ -60,9 +77,7 @@ func addBlockWithoutSum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var block blockchain.Block
-	fmt.Printf("Body: %s\n", body)
 	err = json.Unmarshal(body, &block)
-	fmt.Printf("Block: %v\n", block)
 	if err != nil {
 		log.Printf("Error format blocks!\nBody: %s\nError: %s\n", body, err)
 		w.WriteHeader(http.StatusBadRequest)

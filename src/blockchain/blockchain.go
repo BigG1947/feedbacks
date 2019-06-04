@@ -105,14 +105,13 @@ func InitBlockChain(db *sql.DB) (*BlockChain, error) {
 	}
 
 	err = db.QueryRow("SELECT hash FROM feedbacks WHERE timestamp = (SELECT max(timestamp) FROM feedbacks);").Scan(&tip)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		log.Printf("Error in initialization blockchain: %s", err)
 	}
 	err = db.QueryRow("SELECT COUNT(hash) FROM feedbacks;").Scan(&length)
 	if err != nil {
 		log.Printf("Error in initialization blockchain: %s", err)
 	}
-	fmt.Printf("Length: %d\n", length)
 	if len(tip) == 0 {
 		genesis := NewBlock("Genesis", -1, 0, []byte{}, 1)
 		_, err := db.Exec("INSERT INTO feedbacks(hash, prev_hash, nonce, timestamp, data, id_employee, mark) VALUES (?,?,?,?,?,?,?)", genesis.Hash, genesis.PrevFeedBackHash, genesis.Nonce, genesis.TimeStamp, genesis.Data, genesis.EmployeeId, genesis.Mark)
@@ -326,7 +325,6 @@ func (bc *BlockChain) Check() {
 			log.Printf("BlockChain is not math to other blockChain nodes\n")
 			bc.repair()
 		}
-		fmt.Printf("Matched: %v\nBroken: %v\nStatus: %v\nHash: %x\n", bc.matched, bc.broken, bc.Status, bc.hash)
 		bc.mutex.Unlock()
 		time.Sleep(30 * time.Second)
 	}

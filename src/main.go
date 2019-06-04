@@ -14,7 +14,7 @@ var bc *blockchain.BlockChain
 func main() {
 	var err error
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	f, err := os.OpenFile("error.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile("blockchain_log.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		panic(err)
 	}
