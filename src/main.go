@@ -13,8 +13,6 @@ var bc *blockchain.BlockChain
 
 func main() {
 	var err error
-	db, err = initDB()
-
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	f, err := os.OpenFile("error.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
@@ -22,6 +20,7 @@ func main() {
 	}
 	log.SetOutput(f)
 
+	db, err = initDB()
 	if err != nil {
 		log.Printf("Error in initialization to db:\n%s\n", err)
 		return
